@@ -18,7 +18,8 @@ class ContactData extends Component {
                 validation: {
                     required: true
                 },
-                valid: false
+                valid: false,
+                touched: false
             },
             street: {
                 elementType: 'input',
@@ -30,7 +31,9 @@ class ContactData extends Component {
                 validation: {
                     required: true
                 },
-                valid: false
+                valid: false,
+                touched: false
+
             },
             zipCode: {
                 elementType: 'input',
@@ -44,7 +47,9 @@ class ContactData extends Component {
                     minLength: 3,
                     maxLength: 6
                 },
-                valid: false
+                valid: false,
+                touched: false
+
             },
             country: {
                 elementType: 'input',
@@ -55,7 +60,9 @@ class ContactData extends Component {
                 value: '',
                 validation: {
                     required: true
-                }
+                },
+                valid: false,
+                touched: false
             },
             email: {
                 elementType: 'input',
@@ -67,7 +74,8 @@ class ContactData extends Component {
                 validation: {
                     required: true
                 },
-                valid: false
+                valid: false,
+                touched: false
             },
             deliveryMethod: {
                 elementType: 'select',
@@ -77,9 +85,14 @@ class ContactData extends Component {
                         { value: ' cheapest', displayValue: 'Cheapest' }
                     ]
                 },
-                value: ''
+                valid: false,
+                value: '',
+                validation: {
+                    required: false
+                },
             }
         },
+        formIsValid: false,
         loading: false
     }
 
@@ -109,6 +122,7 @@ class ContactData extends Component {
 
     checkValidity = (value, rules) => {
         let isValid = true;
+        console.log(value);
         if (rules.required) {
             isValid = value.trim() !== '' && isValid;
         }
@@ -132,8 +146,14 @@ class ContactData extends Component {
         updatedOFormElement.value = event.target.value;
         updatedOFormElement.valid = this.checkValidity(updatedOFormElement.value, updatedOFormElement.validation);
         updatedOrderForm[inputIdentifier] = updatedOFormElement;
+        updatedOFormElement.touched = true;
         console.log(updatedOFormElement);
-        this.setState({ orderForm: updatedOrderForm });
+        let formIsValid=true;
+        console.log("identifier is :"+inputIdentifier);
+        for(let inputIdentifier in updatedOrderForm){
+            formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
+        }
+        this.setState({ orderForm: updatedOrderForm , formIsValid: formIsValid});
     }
 
     render() {
@@ -157,12 +177,13 @@ class ContactData extends Component {
                         value={formElement.config.value}
                         changed={(event) => this.inputChangedHandler(event, formElement.id)}
                         invalid={ !formElement.config.valid}
+                        touched={formElement.config.touched}
                     ></Input>
 
                 ))
             }
 
-            <Button btnType='Success' clicked={this.orderHandler}>Order</Button>
+            <Button btnType='Success' clicked={this.orderHandler } disabled={!this.state.formIsValid}> Order</Button>
         </form>);
         if (this.state.loading) {
             form = <Spinner />;
